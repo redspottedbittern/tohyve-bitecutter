@@ -7,7 +7,7 @@ This container functions as a small wrapper for the ToHyve TTS service to let it
 - The interaction is basically the same as with the TTS tool itself with only a few differences
 
 1. Create the audio file:
-```
+```hs
 	curl -X POST \
       -H "Content-Type:application/json" \
       -d @curl.json \
