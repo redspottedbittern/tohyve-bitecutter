@@ -7,7 +7,7 @@ This container functions as a small wrapper for the ToHyve TTS service to let it
 - The interaction is basically the same as with the TTS tool itself with only a few differences
 
 1. Create the audio file:
-```zsh
+```bash
 	curl -X POST \
       -H "Content-Type:application/json" \
       -d @curl.json \
@@ -15,7 +15,7 @@ This container functions as a small wrapper for the ToHyve TTS service to let it
       https://dfki-3109.dfki.de/tts/run/predict  
 ```
 Where curl.json is a JSON file, which contains input data.
-```
+```json
 {
     "data": [
         "de",
@@ -26,7 +26,7 @@ Where curl.json is a JSON file, which contains input data.
 The file predict.txt is a text file, that will contain the path of the audio file after it was created.
 
 2. Download the created audio file, using the path from the predict.txt file
-```
+```bash
 curl -o /tmp/output.wav \
 https://dfki-3109.dfki.de/tts/file=$FILEPATH$
 ```
