@@ -5,9 +5,9 @@ from typing import List
 from utils import process_loop, download_wav, concatenate_wav, delete_wav
 
 # Set url for the TTS service
-SERVER_URL = "https://dfki-3109.dfki.de/tts/"
-# SERVER_URL = "http://localhost:8003/tts/"
-TTS_URL = SERVER_URL + "run/predict"
+# SERVER_URL = "https://dfki-3109.dfki.de/"
+SERVER_URL = "http://localhost:8003/"
+TTS_URL = SERVER_URL + "tts/run/predict"
 FILE_URL = SERVER_URL + "file="
 
 # Set path of temporary download folder and for the save file
