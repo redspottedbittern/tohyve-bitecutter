@@ -51,7 +51,7 @@ FILEPATH=$(tr -d '"' < predict.txt)
 # Run the second curl comand
 # it downloads the wav file specified in predict.txt
 curl -o output.wav \
-                https://dfki-3109.dfki.de/tts$FILEPATH
+                https://dfki-3109.dfki.de/tts/$FILEPATH
 ```
 
 ## Serverside interaction
