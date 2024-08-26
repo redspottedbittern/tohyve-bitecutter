@@ -2,7 +2,7 @@
 
 This container functions as a small wrapper for the ToHyve TTS service to let it process larger text. Normally the TTS service sends an error message, if the input text is too long. The Bite Cutter takes the input text, sends it to the TTS and recursively cuts the text into smaller pieces, if an error arises.
 
-## To interact with the tool:
+## To interact with the tool locally:
 
 - The interaction is basically the same as with the TTS tool itself with only a few differences
 
@@ -10,11 +10,11 @@ This container functions as a small wrapper for the ToHyve TTS service to let it
 ```bash
 	curl -X POST \
       -H "Content-Type:application/json" \
-      -d @curl.json \
+      -d @text.json \
       -o predict.txt \
       http://localhost:8006/split
 ```
-Where curl.json is a JSON file, which contains input data.
+Where text.json is a JSON file, which contains input data.
 ```json
 {
     "data": [
@@ -28,7 +28,30 @@ The file predict.txt is a text file, that will contain the path of the audio fil
 2. Download the created audio file, using the path from the predict.txt file
 ```bash
 curl -o /tmp/output.wav \
-http://localhost:8006/app/$FILEPATH$
+http://localhost:8006/app/$FILEPATH
+```
+
+## To interact with the tool remotely:
+
+Use the following comand to send the text from the text.json file to the system and download the wav file into the present working directory:
+
+```bash
+# Run the first curl comand
+# input_text.json contains the text that will be turned into speech
+curl -X POST \
+            -H "Content-Type:application/json" \
+                -d @input_text.json \
+                    -o predict.txt \
+                        https://dfki-3109.dfki.de/tts/run/predict \
+
+                        # Extract the file path from predict.txt
+# FILEPATH=$(jq -r '.data[].name' predict.txt)
+FILEPATH=$(tr -d '"' < predict.txt)
+
+# Run the second curl comand
+# it downloads the wav file specified in predict.txt
+curl -o output.wav \
+                https://dfki-3109.dfki.de/tts$FILEPATH
 ```
 
 ## Serverside interaction
