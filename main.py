@@ -2,18 +2,18 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List
-from utils import process_loop, download_wav, concatenate_wav, delete_wav
+from utils import process_loop, WavHandler
 
 # Set url for the TTS service
 # SERVER_URL = "https://dfki-3109.dfki.de/"
 # SERVER_URL = "http://localhost:8003/"
 SERVER_URL = "http://tts_container:8003/"
 TTS_URL = SERVER_URL + "tts/run/predict"
-FILE_URL = SERVER_URL + "tts/file="
+GET_FILE_URL = SERVER_URL + "tts/file="
 
 # Set path of temporary download folder and for the save file
 DOWNLOAD_DIR = "/app/downloads/"
-OUTPUT_PATH = '/app/output.wav'
+UPLOAD_DIR = '/app/box/'
 
 # define the fastapi app
 app = FastAPI()
@@ -31,7 +31,7 @@ async def request_handler(input: TextInput):
     process_loop: recursively send text to the TTS service and splits it into
     smaller chunks if the service can't handle the size.
 
-    download_wav, concatenate_wav, delete_wav: deal with a number of generated
+    WavHandler download, concatenate: deal with a number of generated
     wav files to expose them for http requests
     """
 
@@ -41,19 +41,24 @@ async def request_handler(input: TextInput):
     text = input.data[1]
     filepaths = await process_loop(TTS_URL, text, language)
 
-    # download all the small wav files
-    local_filepaths = await download_wav(FILE_URL, DOWNLOAD_DIR, filepaths)
+    wavhandler = WavHandler(DOWNLOAD_DIR, UPLOAD_DIR, GET_FILE_URL, filepaths)
+    await wavhandler.download()
+    await wavhandler.concatenate()
 
-    # Concatenate the small files into a big one
-    await concatenate_wav(local_filepaths, OUTPUT_PATH)
+    # # download all the small wav files
+    # local_filepaths = await download_wav(FILE_URL, DOWNLOAD_DIR, filepaths)
 
-    # clean up by deleting wav bites
-    delete_wav(local_filepaths)
+    # # Concatenate the small files into a big one
+    # await concatenate_wav(local_filepaths, OUTPUT_PATH)
 
-    return OUTPUT_PATH
+    # # clean up by deleting wav bites
+    # delete_wav(local_filepaths)
+
+    return wavhandler.get_output()
 
 
-@app.get(OUTPUT_PATH)
-def get_file():
+@app.get(UPLOAD_DIR + "{foldername}/output.wav")
+def get_file(foldername):
     """Returns the output file for a http GET comand."""
-    return FileResponse(OUTPUT_PATH, media_type="audio/wav")
+    file_path = UPLOAD_DIR + foldername + '/' + "output.wav"
+    return FileResponse(file_path, media_type="audio/wav")

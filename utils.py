@@ -2,6 +2,7 @@
 
 import os
 import requests
+import datetime
 from nltk.tokenize import sent_tokenize, word_tokenize
 from pydub import AudioSegment
 
@@ -69,50 +70,83 @@ def split(text):
     return [words_first_half, words_second_half]
 
 
-async def download_wav(file_url, download_dir, filepaths):
-    """Downloads files from TTS service and returns filepaths."""
+class WavHandler():
 
-    local_filepaths = []
-    local_file = "_downloaded.wav"
+    def __init__(self,
+                 download_dir,
+                 upload_dir,
+                 get_file_url,
+                 remote_filepaths):
+        """Make folders for the download and file providing.
 
-    for idx, path in enumerate(filepaths):
+        download_dir: dir to save wav bites from tts
+        upload_dir: dir to provide the finished wav to user
+        get_file_url: base-url from tts service to get the wav file
+        remote_filepaths: second half of wav file on tts service
+        local_filepaths: full paths to all downloaded wav snippets
+        """
+        self.code = self._create_code()
+        self.download_dir = download_dir + self.code
+        self.upload_dir = upload_dir + self.code
+        self.get_file_url = get_file_url
+        self.remote_filepaths = remote_filepaths
+        self.local_filepaths = []
+        self.output_path = self.upload_dir + "output.wav"
 
-        # set the full remote and local paths
-        full_remote_path = file_url + path
-        full_local_path = download_dir + str(idx) + local_file
+        os.mkdir(self.download_dir)
+        os.mkdir(self.upload_dir)
 
-        # send a http GET to download from the TTS service
-        file_response = requests.get(full_remote_path)
+    def _create_code(self):
+        """Create time code to use for file specification."""
+        code = datetime.datetime.now().strftime('%y-%m-%d_%H-%M-%S')
 
-        # save the file to the local folder
-        with open(full_local_path, 'wb') as file:
-            file.write(file_response.content)
+        return code + '/'
 
-        local_filepaths.append(full_local_path)
+    async def download(self):
+        """Download files from TTS service and save filepaths."""
 
-    return local_filepaths
+        local_file = "_downloaded.wav"
 
+        for idx, path in enumerate(self.remote_filepaths):
 
-async def concatenate_wav(filepaths, output_path):
-    """Use AudioSegment to concatenate the wav files."""
+            # set the full remote and local paths
+            full_remote_path = self.get_file_url + path
+            full_local_path = self.download_dir + str(idx) + local_file
 
-    # initialize Audiosegment and concatenate the wav files onto it
-    big_wav = AudioSegment.empty()
+            # send a http GET to download from the TTS service
+            file_response = requests.get(full_remote_path)
 
-    for wav in filepaths:
-        # Check if file already exists
-        if os.path.exists(wav):
-            big_wav += AudioSegment.from_wav(wav)
-        else:
-            raise FileNotFoundError
+            # save the file to the local folder
+            with open(full_local_path, 'wb') as file:
+                file.write(file_response.content)
 
-    # Save the output file
-    big_wav.export(output_path, format='wav')
+            self.local_filepaths.append(full_local_path)
 
+    async def concatenate(self):
+        """Use AudioSegment to concatenate the wav files."""
 
-def delete_wav(filepaths):
-    """Deletes temporary wav bites."""
+        # initialize Audiosegment and concatenate the wav files onto it
+        big_wav = AudioSegment.empty()
 
-    for wav in filepaths:
-        if os.path.exists(wav):
-            os.remove(wav)
+        for wav in self.local_filepaths:
+            # Check if file already exists
+            if os.path.exists(wav):
+                big_wav += AudioSegment.from_wav(wav)
+            else:
+                raise FileNotFoundError
+
+        # Save the output file
+        big_wav.export(self.output_path, format='wav')
+
+        # Clean up wav snippets
+        self._delete_wav()
+
+    def _delete_wav(self):
+        """Deletes temporary wav bites."""
+
+        for wav in self.local_filepaths:
+            if os.path.exists(wav):
+                os.remove(wav)
+
+    def get_output(self):
+        return self.output_path
