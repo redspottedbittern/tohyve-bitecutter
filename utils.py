@@ -94,7 +94,6 @@ class WavHandler():
         self.output_path = self.upload_dir + self.code
 
         os.mkdir(self.download_dir)
-        os.mkdir(self.upload_dir)
 
     def _create_code(self):
         """Create time code to use for file specification."""
