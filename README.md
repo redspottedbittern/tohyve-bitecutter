@@ -2,8 +2,6 @@
 
 This container functions as a small wrapper for the ToHyve TTS service to let it process larger text. Normally the TTS service sends an error message, if the input text is too long. The Bite Cutter takes the input text, sends it to the TTS and recursively cuts the text into smaller pieces, if an error arises.
 
-**At the moment the container only works as a local machine and not yet over the web.**
-
 ## To interact with the tool:
 
 - The interaction is basically the same as with the TTS tool itself with only a few differences
@@ -32,3 +30,8 @@ The file predict.txt is a text file, that will contain the path of the audio fil
 curl -o /tmp/output.wav \
 http://localhost:8006/app/$FILEPATH$
 ```
+
+## Serverside interaction
+
+On the dfki-3109.de server, the TTS service and the Bite-Cutter are running. They are both located in a docker network in order to interact with eachother. This way, the Bite-Cutter can accept the http POST requests, send them to the TTS service and open a way for the download.
+This means, that the URL in the original docker are not __localhost__, but __tts_container__, which points to the TTS service inside the docker network.
