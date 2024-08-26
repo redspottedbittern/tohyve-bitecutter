@@ -45,20 +45,11 @@ async def request_handler(input: TextInput):
     await wavhandler.download()
     await wavhandler.concatenate()
 
-    # # download all the small wav files
-    # local_filepaths = await download_wav(FILE_URL, DOWNLOAD_DIR, filepaths)
-
-    # # Concatenate the small files into a big one
-    # await concatenate_wav(local_filepaths, OUTPUT_PATH)
-
-    # # clean up by deleting wav bites
-    # delete_wav(local_filepaths)
-
     return wavhandler.get_output()
 
 
-@app.get(UPLOAD_DIR + "{foldername}/output.wav")
-def get_file(foldername):
+@app.get(UPLOAD_DIR + "{code}")
+def get_file(code):
     """Returns the output file for a http GET comand."""
-    file_path = UPLOAD_DIR + foldername + '/' + "output.wav"
+    file_path = UPLOAD_DIR + code
     return FileResponse(file_path, media_type="audio/wav")

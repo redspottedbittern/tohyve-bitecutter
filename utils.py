@@ -86,12 +86,12 @@ class WavHandler():
         local_filepaths: full paths to all downloaded wav snippets
         """
         self.code = self._create_code()
-        self.download_dir = download_dir + self.code
-        self.upload_dir = upload_dir + self.code
+        self.download_dir = download_dir + self.code + '/'
+        self.upload_dir = upload_dir
         self.get_file_url = get_file_url
         self.remote_filepaths = remote_filepaths
         self.local_filepaths = []
-        self.output_path = self.upload_dir + "output.wav"
+        self.output_path = self.upload_dir + self.code
 
         os.mkdir(self.download_dir)
         os.mkdir(self.upload_dir)
@@ -100,7 +100,7 @@ class WavHandler():
         """Create time code to use for file specification."""
         code = datetime.datetime.now().strftime('%y-%m-%d_%H-%M-%S')
 
-        return code + '/'
+        return code
 
     async def download(self):
         """Download files from TTS service and save filepaths."""
@@ -149,4 +149,4 @@ class WavHandler():
                 os.remove(wav)
 
     def get_output(self):
-        return self.output_path
+        return self.code
