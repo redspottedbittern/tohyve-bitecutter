@@ -9,7 +9,7 @@ from utils import process_loop, download_wav, concatenate_wav, delete_wav
 # SERVER_URL = "http://localhost:8003/"
 SERVER_URL = "http://tts_container:8003/"
 TTS_URL = SERVER_URL + "tts/run/predict"
-FILE_URL = SERVER_URL + "file="
+FILE_URL = SERVER_URL + "tts/file="
 
 # Set path of temporary download folder and for the save file
 DOWNLOAD_DIR = "/app/downloads/"
