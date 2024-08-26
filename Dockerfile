@@ -12,6 +12,7 @@ COPY . /app
 
 # Create a folder to store downloaded files
 RUN mkdir -p /app/downloads
+RUN mkdir -p /app/box
 
 # Install ffmpeg for pydub
 RUN apt-get update && apt-get install -y ffmpeg
