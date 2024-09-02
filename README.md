@@ -42,7 +42,7 @@ curl -X POST \
             -H "Content-Type:application/json" \
                 -d @input_text.json \
                     -o predict.txt \
-                        https://dfki-3109.dfki.de/tts/run/predict \
+                        https://dfki-3109.dfki.de/split \
 
                         # Extract the file path from predict.txt
 # FILEPATH=$(jq -r '.data[].name' predict.txt)
@@ -51,7 +51,7 @@ FILEPATH=$(tr -d '"' < predict.txt)
 # Run the second curl comand
 # it downloads the wav file specified in predict.txt
 curl -o output.wav \
-                https://dfki-3109.dfki.de/tts/$FILEPATH
+                https://dfki-3109.dfki.de/$FILEPATH
 ```
 
 ## Serverside interaction
